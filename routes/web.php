@@ -1,16 +1,18 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
-// Halaman utama sementara untuk shop.index sebelum Milestone 4
+// Halaman utama publik
 Route::get('/', function () {
     return auth()->check()
-        ? view('layouts.app') 
+        ? (auth()->user()->role === 'admin' ? redirect()->route('admin.dashboard') : view('layouts.app'))
         : redirect()->route('login');
 })->name('shop.index');
 
-// Auth routes (M1.8)
+// Route Tamu (Login & Register)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.store');
@@ -18,11 +20,19 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->name('register.store');
 });
 
+// Logout
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
-// Placeholder sementara untuk admin.dashboard sebelum Milestone 2 & 7
+// Route Admin (Milestone 2)
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/', function () {
-        return '<h1>Dashboard Admin (Milestone 1 Teruji)</h1><p>Login role admin berhasil! Silakan lanjut ke Milestone 2.</p><form method="POST" action="'.route('logout').'">'.csrf_field().'<button>Keluar</button></form>';
+        return redirect()->route('admin.products.index');
     })->name('dashboard');
+
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
+    Route::resource('products', AdminProductController::class)->except('show');
 });
