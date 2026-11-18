@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\ShippingServiceController;
+use App\Http\Controllers\Admin\StockController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,7 +25,7 @@ Route::middleware('guest')->group(function () {
 // Logout
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
-// Route Admin (Milestone 2)
+// Route Admin (Milestone 2 & 3)
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/', function () {
         return redirect()->route('admin.products.index');
@@ -35,4 +37,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
     Route::resource('products', AdminProductController::class)->except('show');
+
+    // Route Stok & Ekspedisi (Milestone 3)
+    Route::get('/stock', [StockController::class, 'index'])->name('stock.index');
+    Route::get('/stock/create', [StockController::class, 'create'])->name('stock.create');
+    Route::post('/stock', [StockController::class, 'store'])->name('stock.store');
+
+    Route::get('/shipping', [ShippingServiceController::class, 'index'])->name('shipping.index');
+    Route::post('/shipping', [ShippingServiceController::class, 'store'])->name('shipping.store');
+    Route::put('/shipping/{shippingService}', [ShippingServiceController::class, 'update'])->name('shipping.update');
+    Route::delete('/shipping/{shippingService}', [ShippingServiceController::class, 'destroy'])->name('shipping.destroy');
 });

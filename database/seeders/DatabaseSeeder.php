@@ -10,7 +10,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             AdminUserSeeder::class,
-            // MasterDataSeeder::class, (ini kita comment dulu karena baru akan dibuat di Milestone 3)
+            MasterDataSeeder::class,
         ]);
     }
 }
