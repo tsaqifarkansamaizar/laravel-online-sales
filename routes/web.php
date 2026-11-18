@@ -5,14 +5,12 @@ use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ShippingServiceController;
 use App\Http\Controllers\Admin\StockController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProductCatalogController;
 use Illuminate\Support\Facades\Route;
 
-// Halaman utama publik
-Route::get('/', function () {
-    return auth()->check()
-        ? (auth()->user()->role === 'admin' ? redirect()->route('admin.dashboard') : view('layouts.app'))
-        : redirect()->route('login');
-})->name('shop.index');
+// Route Publik Katalog & Detail Produk (Milestone 4)
+Route::get('/', [ProductCatalogController::class, 'index'])->name('shop.index');
+Route::get('/produk/{product:slug}', [ProductCatalogController::class, 'show'])->name('shop.show');
 
 // Route Tamu (Login & Register)
 Route::middleware('guest')->group(function () {
@@ -38,7 +36,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 
     Route::resource('products', AdminProductController::class)->except('show');
 
-    // Route Stok & Ekspedisi (Milestone 3)
     Route::get('/stock', [StockController::class, 'index'])->name('stock.index');
     Route::get('/stock/create', [StockController::class, 'create'])->name('stock.create');
     Route::post('/stock', [StockController::class, 'store'])->name('stock.store');
