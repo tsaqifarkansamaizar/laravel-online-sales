@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ShippingServiceController;
 use App\Http\Controllers\Admin\StockController;
@@ -39,25 +41,31 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::get('/pesanan/{order}', [CustomerOrderController::class, 'show'])->name('orders.show');
 });
 
-// Route Admin (Milestone 2 & 3)
+// Route Admin (Milestone 2, 3 & 7)
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/', function () {
-        return redirect()->route('admin.products.index');
-    })->name('dashboard');
+    // Dashboard Ringkasan Toko (Milestone 7)
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Kategori & Produk (Milestone 2)
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
-
     Route::resource('products', AdminProductController::class)->except('show');
 
+    // Manajemen Stok & Ekspedisi (Milestone 3)
     Route::get('/stock', [StockController::class, 'index'])->name('stock.index');
     Route::get('/stock/create', [StockController::class, 'create'])->name('stock.create');
     Route::post('/stock', [StockController::class, 'store'])->name('stock.store');
-
     Route::get('/shipping', [ShippingServiceController::class, 'index'])->name('shipping.index');
     Route::post('/shipping', [ShippingServiceController::class, 'store'])->name('shipping.store');
     Route::put('/shipping/{shippingService}', [ShippingServiceController::class, 'update'])->name('shipping.update');
     Route::delete('/shipping/{shippingService}', [ShippingServiceController::class, 'destroy'])->name('shipping.destroy');
+
+    // Manajemen Transaksi & Alur Pesanan (Milestone 7)
+    Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
+    Route::patch('/orders/{order}/confirm', [AdminOrderController::class, 'confirm'])->name('orders.confirm');
+    Route::patch('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.status');
+    Route::patch('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])->name('orders.cancel');
 });
